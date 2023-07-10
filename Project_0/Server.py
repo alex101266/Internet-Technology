@@ -13,6 +13,7 @@ server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #Binds the server socket to indicated port and sets the server location to an empty string, 
 # which lets it listen for all networks rather than just a specific ip or local host.
 server_addr = (socket.gethostname(), args.port)
+
 server_sock.bind(server_addr)
 
 #Listens for incoming connections from the client computer.
