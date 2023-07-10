@@ -33,7 +33,12 @@ while True:
             break
         first_two_bytes = full_data[:2]
         full_message = full_data[2:]
-        message_sum = sum(full_message)
+
+        message_sum = 0
+        for byte in full_message:
+            message_sum += byte
+            message_sum = (message_sum & 0xFFFF) + (message_sum >> 16)
+        
         ones_complement = ~message_sum & 0xFFFF
         ones_complement_as_bytes = ones_complement.to_bytes(2, 'big')
         modified_data = full_message.decode("utf-8").swapcase()
