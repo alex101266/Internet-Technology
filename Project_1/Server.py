@@ -18,6 +18,20 @@ server_sock.bind(server_addr)
 #Listens for incoming connections from the client computer.
 server_sock.listen(5)
 
+#Computes checksum for array of bytes
+def checksum(data):
+    message_sum = 0
+    i = 0
+    if len(data) % 2 == 1:
+        data = data + b'\x00'
+    while i < len(data):
+        message_sum = message_sum + int.from_bytes(data[i:i+2],"big")
+        message_sum = ((message_sum >> 16) + (message_sum & 0xFFFF))
+        #print(message_sum)
+        i += 2
+    message_sum = 0xFFFF&~message_sum
+    return ((message_sum).to_bytes(2,"big"))
+
 while True:
     print("Waiting to connect...")
 
@@ -28,23 +42,24 @@ while True:
     while True:
         #reads data
         full_data = client_sock.recv(512)
+        print(full_data)
         #breaks if end of file
         if not full_data:
             break
         first_two_bytes = full_data[:2]
         full_message = full_data[2:]
-
-        message_sum = 0
-        for byte in full_message:
-            message_sum += byte
-            message_sum = (message_sum & 0xFFFF) + (message_sum >> 16)
-        
-        ones_complement = ~message_sum & 0xFFFF
-        ones_complement_as_bytes = ones_complement.to_bytes(2, 'big')
-        modified_data = full_message.decode("utf-8").swapcase()
-        final_message = modified_data + ones_complement_as_bytes
-        #sends reversed case to client
-        client_sock.send(bytes(final_message,'utf-8'))
+        chksm = checksum(full_data)
+        #makes final_data ERROR if checksum is wrong
+        if chksm != b'\x00\x00':
+            final_data = b'\0\0ERROR\n'
+        #reverses the message and computes new checksum for final data
+        else:
+            modified_message = full_message.decode('ISO-8859-1').swapcase()
+            modified_data = bytes(modified_message, 'ISO-8859-1')
+            mod_chksm=checksum(modified_data)
+            final_data = mod_chksm + modified_data
+        #sends final data to client
+        client_sock.send(final_data)
     #Closes the client once finished transferring data.
     client_sock.close()
 
