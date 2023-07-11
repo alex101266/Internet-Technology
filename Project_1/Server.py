@@ -42,7 +42,6 @@ while True:
     while True:
         #reads data
         full_data = client_sock.recv(512)
-        print(full_data)
         #breaks if end of file
         if not full_data:
             break
