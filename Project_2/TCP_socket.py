@@ -18,7 +18,14 @@ class TCP_Connection_Final(TCP_Connection):
 	def receive_packets(self, packets):
 		#insert code to deal with a list of incoming packets here
 		#NOTE: this code can send one packet, but should never send more than one packet
-		pass
+		for packet in packets:
+			#Check sequence number
+			segment_length = len(packet.data)
+			#Send ACK if new data receieved
+			if segment_length > 0:
+				self.RCV.ACK = packet.SEQ + segment_length
+				self._packetize_and_send(self.SND.NXT)
+
 	def send_data(self, window_timeout = False, RTO_timeout = False):
 		#put code to send a single packet of data here
 		#note that this code does not always need to send data, only if TCP policy thinks it makes sense
