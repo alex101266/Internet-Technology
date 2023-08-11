@@ -19,6 +19,7 @@ class TCP_Connection_Final(TCP_Connection):
 		#in other words, if we haven't sent any data in while (which causes this time to go off),
 		#send an empty packet
 		self.send_data(self,window_timeout=True,RTO_timeout=False)
+		self.window_timer.set_and_start(self, self.window_timer.timer_length*2)
 		pass
 	def receive_packets(self, packets):
 		#insert code to deal with a list of incoming packets here
@@ -44,9 +45,10 @@ class TCP_Connection_Final(TCP_Connection):
 			self.SND.NXT = self.SND.UNA
 		#Check how much data can be sent
 		size = min(self.SND.MSS, self.SND.WND, self.congestion_window)
-		if window_timeout == True:
-			size = 0
 		start = self.SND.NXT - self.SND.UNA
+		if window_timeout == True:
+			size = 1
+			start -= 1
 		end = start + size
 
 		#Get the needed segment from send_buff
