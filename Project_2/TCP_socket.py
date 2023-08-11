@@ -11,7 +11,7 @@ class TCP_Connection_Final(TCP_Connection):
 		#increase the RTO timer 
 		print('timeout')
 		self.send_data(self,window_timeout=False,RTO_timeout=True)
-		self.RTO_timer.set_and_start(self, self.RTO_timer.timer_length)
+		self.RTO_timer.set_and_start(self, self.RTO_timer.timer_length*2)
 		pass
 	def handle_window_timeout(self):
 		print('window timeout')
@@ -41,7 +41,6 @@ class TCP_Connection_Final(TCP_Connection):
 		#congestion and flow control windows, then send one packet of that data
 
 		if RTO_timeout == True:
-			print('hi')
 			self.SND.NXT = self.SND.UNA
 		#Check how much data can be sent
 		size = min(self.SND.MSS, self.SND.WND, self.congestion_window)
