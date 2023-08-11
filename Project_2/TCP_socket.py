@@ -26,8 +26,26 @@ class TCP_Connection_Final(TCP_Connection):
 		#NOTE: this code can send one packet, but should never send more than one packet
 		for packet in packets:
 			#Check sequence number
-			segment_len = len(packet.data)
 			#Send ACK if new data receieved
+			"""
+			if packet.LEN == 0 & self.RCV.WND == 0:
+				if packet.SEQ == self.RCV.NXT:
+					print('packet acknowledged')
+			elif packet.LEN == 0 & self.RCV.WND >= 0:
+				if self.RCV.NXT <= packet.SEQ < self.RCV.NXT + self.RCV.WND:
+					print('packet acknowledged')
+			elif packet.LEN >= 0 & self.RCV.WND == 0:
+				#not acceptable
+				print('oh nos')
+			elif segment_len >= 0 & self.RCV.WND >= 0:
+				if self.RCV.NXT <= packet.SEQ < self.RCV.NXT + self.RCV.WND:
+					if packet.SEQ + packet.LEN - 1 < self.RCV.NXT + self.RCV.WND:
+						self.receive_buffer[packet.SEQ-self.RCV.NXT:packet.SEQ + packet.LEN-self.RCV]=packet.data
+					else:
+						self.receive_buffer[packet.SEQ-self.RCV.NXT:]=packet.data[:self.RCV.WND]
+				elif self.RCV.NXT <= packet.SEQ + packet.LEN - 1< self.RCV.NXT + self.RCV.WND:
+					self.receive_buffer[:packet.SEQ + packet.LEN-self.RCV.NXT] = packet.data[self.RCV.NXT-packet.SEQ:]
+			"""
 			if segment_len > 0:
 				self.RCV.ACK = packet.SEQ + segment_len
 				self.RCV.WND -= segment_len
@@ -45,10 +63,9 @@ class TCP_Connection_Final(TCP_Connection):
 			self.SND.NXT = self.SND.UNA
 		#Check how much data can be sent
 		size = min(self.SND.MSS, self.SND.WND, self.congestion_window)
-		start = self.SND.NXT - self.SND.UNA
 		if window_timeout == True:
-			size = 1
-			start -= 1
+			size = 0
+		start = self.SND.NXT - self.SND.UNA
 		end = start + size
 
 		#Get the needed segment from send_buff
@@ -64,7 +81,7 @@ class TCP_Connection_Final(TCP_Connection):
 				byte = byte[0]
 			data_to_send.append(byte)
 
-		#Sends data (if there is any)
-		if data_to_send:
+		#Sends data (if there is any) or if zero window probing
+		if data_to_send | window_timeout == True:
 			self._packetize_and_send(self.SND.NXT, PSH=flag, data = data_to_send)
 			self.SND.NXT += len(data_to_send)
