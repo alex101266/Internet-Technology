@@ -1,13 +1,16 @@
 0.  Alex Modzelewski (am2408)
     Shadmehr Khan (srk169)
 
-1.  There appear to be no known bugs for this final version of code. The receieve_packets function would mostly work but the WND for the last
+1.  There were many issues with the code. The receieve_packets function would mostly work but the WND for the last
 ACK was off by a bit, likely due to the WND not being reset properly. The data and ACKs were otherwise correctly placed into the output files.
 
 2.  The only individuals that worked on this project are those listed under number 0. The references used were as follows:
         "The TCP/IP Guide" on tcpipguide.com
         "Transmission Control Protocol" on wikipedia.com
-        "RFC 791 = Transmission Control Protocol" on datatracker.org   
+        "RFC 791 : Transmission Control Protocol" on datatracker.org
+        "RFC 5681 : TCP Congestion Control" on rfc-editor.org 
+        "RFC 9293 : Transmission Control Protocol (TCP)" on rfc-editor.org
+        "RFC 6298 : Computing TCP's Retransmission Timer" on rfc-editor.org
         "Lecture 7 transport layer" on Canvas
         Various online lectures 
 
