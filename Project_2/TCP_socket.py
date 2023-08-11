@@ -9,11 +9,16 @@ class TCP_Connection_Final(TCP_Connection):
 		#put code to handle RTO timeout here
 		#send a single packet containing the oldest unacknowledged data
 		#increase the RTO timer 
+		print('timeout')
+		self.send_data(self,window_timeout=False,RTO_timeout=True)
+		self.RTO_timer.set_and_start(self, self.RTO_timer.timer_length)
 		pass
 	def handle_window_timeout(self):
+		print('window timeout')
 		#put code to handle window timeout here
 		#in other words, if we haven't sent any data in while (which causes this time to go off),
 		#send an empty packet
+		self.send_data(self,window_timeout=True,RTO_timeout=False)
 		pass
 	def receive_packets(self, packets):
 		#insert code to deal with a list of incoming packets here
@@ -35,15 +40,21 @@ class TCP_Connection_Final(TCP_Connection):
 		#if there is any data to send, i.e. we have data we have not sent and we are allowed to send by our
 		#congestion and flow control windows, then send one packet of that data
 
-		#Check how much data can be sent.
+		if RTO_timeout == True:
+			print('hi')
+			self.SND.NXT = self.SND.UNA
+		#Check how much data can be sent
 		size = min(self.SND.MSS, self.SND.WND, self.congestion_window)
+		if window_timeout == True:
+			size = 0
 		start = self.SND.NXT - self.SND.UNA
 		end = start + size
 
-		#Get the needed segment from send_buff.
+		#Get the needed segment from send_buff
 		segment = self.send_buff[start:end]
+		#print("*****",start,size,end,segment)
 
-		#Check push flag, send one packet.
+		#Check push flag, send one packet
 		flag = False
 		data_to_send = bytearray()
 		for byte in segment:
@@ -52,7 +63,7 @@ class TCP_Connection_Final(TCP_Connection):
 				byte = byte[0]
 			data_to_send.append(byte)
 
-		#Sends data (if there is any).
+		#Sends data (if there is any)
 		if data_to_send:
 			self._packetize_and_send(self.SND.NXT, PSH=flag, data = data_to_send)
 			self.SND.NXT += len(data_to_send)
