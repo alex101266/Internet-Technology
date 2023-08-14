@@ -27,7 +27,6 @@ class TCP_Connection_Final(TCP_Connection):
 		for packet in packets:
 			#Check sequence number
 			#Send ACK if new data receieved
-			"""
 			if packet.LEN == 0 & self.RCV.WND == 0:
 				if packet.SEQ == self.RCV.NXT:
 					print('packet acknowledged')
@@ -37,7 +36,7 @@ class TCP_Connection_Final(TCP_Connection):
 			elif packet.LEN >= 0 & self.RCV.WND == 0:
 				#not acceptable
 				print('oh nos')
-			elif segment_len >= 0 & self.RCV.WND >= 0:
+			elif packet.LEN >= 0 & self.RCV.WND >= 0:
 				if self.RCV.NXT <= packet.SEQ < self.RCV.NXT + self.RCV.WND:
 					if packet.SEQ + packet.LEN - 1 < self.RCV.NXT + self.RCV.WND:
 						self.receive_buffer[packet.SEQ-self.RCV.NXT:packet.SEQ + packet.LEN-self.RCV]=packet.data
@@ -46,11 +45,12 @@ class TCP_Connection_Final(TCP_Connection):
 				elif self.RCV.NXT <= packet.SEQ + packet.LEN - 1< self.RCV.NXT + self.RCV.WND:
 					self.receive_buffer[:packet.SEQ + packet.LEN-self.RCV.NXT] = packet.data[self.RCV.NXT-packet.SEQ:]
 			"""
+			segment_len = packet.LEN
 			if segment_len > 0:
 				self.RCV.ACK = packet.SEQ + segment_len
 				self.RCV.WND -= segment_len
 				self._packetize_and_send(self.SND.NXT)
-				
+			"""
 		
 	
 	def send_data(self, window_timeout = False, RTO_timeout = False):
@@ -82,6 +82,6 @@ class TCP_Connection_Final(TCP_Connection):
 			data_to_send.append(byte)
 
 		#Sends data (if there is any) or if zero window probing
-		if data_to_send | window_timeout == True:
+		if data_to_send or window_timeout == True:
 			self._packetize_and_send(self.SND.NXT, PSH=flag, data = data_to_send)
 			self.SND.NXT += len(data_to_send)
