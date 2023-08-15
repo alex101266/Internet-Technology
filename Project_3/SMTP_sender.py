@@ -23,7 +23,7 @@ recv_data = out_sock.recv(1024).decode()
 # Send the HELO command
 out_sock.send(b"HELO " + socket.gethostname().encode() + b"\r\n")
 recv_data = out_sock.recv(1024).decode()
-print(f"To Server: {'HELO ' + socket.gethostname()}\nFrom Server: {recv_data}")
+# print(f"To Server: {'HELO ' + socket.gethostname()}\nFrom Server: {recv_data}")
 
 # Send the MAIL FROM command (ERROR, INVALID RFC SENDER ADDRESS)
 #out_sock.send(b"MAIL FROM:<" + args.source_username.encode() + b">\r\n")
@@ -38,7 +38,7 @@ print(f"To Server: {'HELO ' + socket.gethostname()}\nFrom Server: {recv_data}")
 # Send the MAIL FROM command
 out_sock.send(b"MAIL FROM:<" + f"{args.source_username}@{socket.gethostname()}".encode() + b">\r\n")
 recv_data = out_sock.recv(1024).decode()
-print(f"To Server: {'MAIL FROM:<' + args.source_username + '@' + socket.gethostname() + '>'}\nFrom Server: {recv_data}")
+# print(f"To Server: {'MAIL FROM:<' + args.source_username + '@' + socket.gethostname() + '>'}\nFrom Server: {recv_data}")
 
 
 # Send the RCPT TO command
