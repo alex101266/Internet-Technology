@@ -23,12 +23,23 @@ recv_data = out_sock.recv(1024).decode()
 # Send the HELO command
 out_sock.send(b"HELO " + socket.gethostname().encode() + b"\r\n")
 recv_data = out_sock.recv(1024).decode()
-# print(f"To Server: {'HELO ' + socket.gethostname()}\nFrom Server: {recv_data}")
+print(f"To Server: {'HELO ' + socket.gethostname()}\nFrom Server: {recv_data}")
+
+# Send the MAIL FROM command (ERROR, INVALID RFC SENDER ADDRESS)
+#out_sock.send(b"MAIL FROM:<" + args.source_username.encode() + b">\r\n")
+#recv_data = out_sock.recv(1024).decode()
+#print(f"To Server: {'MAIL FROM:<' + args.source_username + '>'}\nFrom Server: {recv_data}")
+
+# Send the MAIL FROM command (ERROR, SYNTAX)
+#out_sock.send(b"MAIL FROM:<" + {args.source_username}@{socket.gethostname()} + b">\r\n")
+#recv_data = out_sock.recv(1024).decode()
+#print(f"To Server: {'MAIL FROM:<' + {args.source_username}@{socket.gethostname()} + '>'}\nFrom Server: {recv_data}")
 
 # Send the MAIL FROM command
-out_sock.send(b"MAIL FROM:<" + args.source_username.encode() + b">\r\n")
+out_sock.send(b"MAIL FROM:<" + f"{args.source_username}@{socket.gethostname()}".encode() + b">\r\n")
 recv_data = out_sock.recv(1024).decode()
-# print(f"To Server: {'MAIL FROM:<' + args.source_username + '>'}\nFrom Server: {recv_data}")
+print(f"To Server: {'MAIL FROM:<' + args.source_username + '@' + socket.gethostname() + '>'}\nFrom Server: {recv_data}")
+
 
 # Send the RCPT TO command
 out_sock.send(b"RCPT TO:<" + args.destination_email_address.encode() + b">\r\n")
@@ -45,7 +56,7 @@ message_id = f"<{int(time.time())}@{socket.gethostname()}>"
 
 # Construct the email message
 email_subject = f"Subject: {args.subject_line}\r\n"
-email_from = f"From: <{args.source_username}>\r\n"
+email_from = f"From: <{args.source_username}@{socket.gethostname()}>\r\n"
 email_message_id = f"Message-ID: {message_id}\r\n"
 email_to = f"To: <{args.destination_email_address}>\r\n"
 email_headers = email_from + email_to + email_subject + email_message_id
